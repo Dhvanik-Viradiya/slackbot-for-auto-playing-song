@@ -1,6 +1,7 @@
-# url mapping only
-# This bot will work only in public channel
-
+"""
+title: Slackbot for auto playing song
+author: Dhvanik Viradiya
+"""
 
 import slack
 import os
@@ -22,7 +23,6 @@ app = Flask(__name__)
 
 # @app.route('/')
 def home():
-	print("opop")
 	t = Thread(target=loadVideo)
 	t.start()
 	t.join()
@@ -32,7 +32,7 @@ slack_event_adapter = SlackEventAdapter(os.environ['SIGNING_SECRET'],'/slack/eve
 
 client = slack.WebClient(token=os.environ['SLACK_TOKEN'])
 
-client.chat_postMessage(channel="#jambox-testing",text="Hi, I am jambox bot. Now you can use commands (pinned msg) to control me :)")
+client.chat_postMessage(channel="#jambox",text="Hi, I am jambox bot. Now you can use commands (pinned msg) to control me :)")
 
 Instance = vlc.Instance()
 player = Instance.media_player_new()
@@ -42,10 +42,8 @@ num = 0
 resume = True
 next_song = False
 volume = 80
-print("radhe radhe")
 @slack_event_adapter.on('message')
 def message(payload):
-	print("message")
 	global video_link
 	global num
 	global Instance
@@ -89,12 +87,9 @@ def message(payload):
 		text = text.lstrip("<").rstrip(">")
 		if text not in video_link:
 			video_link.append(text)
-	print(text)
-
 
 
 def loadVideo():
-	# pass
 	global video_link
 	global Instance
 	global player
@@ -102,7 +97,6 @@ def loadVideo():
 	global next_song
 	global client
 	while True:
-		print("radhe")
 		if (not resume or player.is_playing()) and not next_song:
 			print("inside resume")
 			time.sleep(5)
@@ -121,15 +115,14 @@ def loadVideo():
 					media = Instance.media_new(playurl)
 					media.get_mrl()
 					player.set_media(media)
-					print("radhe")
 					player.play()
 					video_duration = player.get_length()
 					print(video_duration)
 					print(video.length)
-					print("shyam")
 					video_link.remove(url)
 					time.sleep(10)
 				except Exception as e:
+					print("error")
 					print(e)
 					video_link.remove(url)
 					next_song = True
